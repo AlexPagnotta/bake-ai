@@ -1,5 +1,7 @@
 # bake-ai
 
+![bake-ai cover](assets/cover.jpg)
+
 A personalized, project-aware AI assistant for the terminal — for research and
 personal projects, not coding. **No provider lock-in, no subscription, no living
 inside the ChatGPT/Gemini apps.**
