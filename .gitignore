@@ -12,3 +12,6 @@ secrets.*
 
 # OS / editor
 .DS_Store
+
+# Plans
+.plans/
