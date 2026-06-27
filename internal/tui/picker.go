@@ -30,9 +30,13 @@ func (i pickerItem) Title() string {
 func (i pickerItem) Description() string { return i.desc }
 func (i pickerItem) FilterValue() string { return i.name }
 
+// appStyle frames the whole home screen (margin around banner + list).
+var appStyle = lipgloss.NewStyle().Margin(1, 2)
+
 type pickerModel struct {
 	list   list.Model
 	result Result
+	phase  int // animation frame counter for the banner gradient
 }
 
 func newPickerModel(projects []workspace.Project) pickerModel {
@@ -43,11 +47,13 @@ func newPickerModel(projects []workspace.Project) pickerModel {
 	items = append(items, pickerItem{kind: kindNew, desc: "scaffold a new project"})
 
 	delegate := list.NewDefaultDelegate()
+	delegate.Styles.NormalTitle = delegate.Styles.NormalTitle.Foreground(fg)
+	delegate.Styles.NormalDesc = delegate.Styles.NormalDesc.Foreground(faint)
 	delegate.Styles.SelectedTitle = delegate.Styles.SelectedTitle.Foreground(accent).BorderLeftForeground(accent)
 	delegate.Styles.SelectedDesc = delegate.Styles.SelectedDesc.Foreground(accent2).BorderLeftForeground(accent)
 
 	l := list.New(items, delegate, 0, 0)
-	l.Title = "bake — your projects"
+	l.Title = "your projects"
 	l.Styles.Title = titleStyle
 	l.SetShowStatusBar(false)
 	l.SetFilteringEnabled(true)
@@ -55,13 +61,17 @@ func newPickerModel(projects []workspace.Project) pickerModel {
 	return pickerModel{list: l}
 }
 
-func (m pickerModel) Init() tea.Cmd { return nil }
+func (m pickerModel) Init() tea.Cmd { return tick() }
 
 func (m pickerModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
+	case tickMsg:
+		m.phase++
+		return m, tick()
 	case tea.WindowSizeMsg:
-		h, v := lipgloss.NewStyle().Margin(1, 2).GetFrameSize()
-		m.list.SetSize(msg.Width-h, msg.Height-v)
+		h, v := appStyle.GetFrameSize()
+		// Leave room for the banner plus a one-line spacer above the list.
+		m.list.SetSize(msg.Width-h, msg.Height-v-bannerHeight()-1)
 	case tea.KeyMsg:
 		// While the user is typing a filter, let the list own every key.
 		if m.list.FilterState() == list.Filtering {
@@ -91,5 +101,10 @@ func (m pickerModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m pickerModel) View() string {
-	return lipgloss.NewStyle().Margin(1, 2).Render(m.list.View())
+	body := lipgloss.JoinVertical(lipgloss.Left,
+		renderBanner(m.phase),
+		"",
+		m.list.View(),
+	)
+	return appStyle.Render(body)
 }

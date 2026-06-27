@@ -43,6 +43,21 @@ find cmd internal -name '*.go' | sort   # every file here should appear in EXPLA
 If you changed code but `EXPLAIN.md` has no diff, you almost certainly missed an
 update.
 
+## Design
+
+The TUI is built from this palette and **nothing else** — no grays, no black.
+Keep new UI on-brand with these only:
+
+- **Pink** `#FE5283` (`brandPink`) — primary accent: titles, highlights, selected items.
+- **Cyan** `#6AD5FD` (`brandCyan`) — secondary accent: borders, descriptions, gradients.
+- **White** `#FFFFFF` (`brandWhite`) — primary text, only when an accent doesn't fit.
+- **Lilac** `#EEADEE` (`brandLilac`) — muted / secondary text, only when an accent doesn't fit.
+
+They're defined once as constants in `internal/tui/theme.go`; reuse those
+constants rather than hardcoding hex elsewhere, and don't introduce new colors.
+Aim for a fun, "poppy" feel (e.g. the animated pink→cyan gradient on the
+home-screen `BAKE` banner).
+
 ## Other conventions
 
 - The **engine** packages (`internal/config`, `internal/workspace`,

@@ -70,7 +70,7 @@ func NewProjectForm(c *config.Config) (name, model string, ok bool, err error) {
 				).
 				Value(&model),
 		),
-	)
+	).WithTheme(formTheme())
 	if err := form.Run(); err != nil {
 		if errors.Is(err, huh.ErrUserAborted) {
 			return "", "", false, nil
