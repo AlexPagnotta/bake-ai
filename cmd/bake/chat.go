@@ -5,6 +5,7 @@ import (
 
 	"github.com/alexpagnotta/bake-ai/internal/config"
 	"github.com/alexpagnotta/bake-ai/internal/gooserun"
+	"github.com/alexpagnotta/bake-ai/internal/tui"
 	"github.com/alexpagnotta/bake-ai/internal/workspace"
 	"github.com/spf13/cobra"
 )
@@ -25,6 +26,7 @@ var chatCmd = &cobra.Command{
 		if !gooserun.Installed() {
 			return fmt.Errorf("goose is not installed or not on PATH (brew install block-goose-cli)")
 		}
+		tui.PrintChatHeader(p)
 		return gooserun.LaunchChat(p)
 	},
 }

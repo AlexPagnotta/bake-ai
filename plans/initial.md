@@ -183,6 +183,16 @@ working directory set to the project folder.
 
 # Phase 2 — TUI polish (Charm)
 
+> **Status (2026-06-27): implemented.** New `internal/tui` package (Bubble Tea +
+> Lip Gloss + Bubbles + Huh + Glamour) as a second front-end over the same engine.
+> No-arg `bake` opens the project picker (`bubbles/list`); selecting routes to chat,
+> `＋ New project` / `n` opens a Huh form; `bake chat` (and the picker handoff) print
+> a Lip Gloss panel + Glamour vault preview before goose takes the screen. All
+> subcommands remain headless/scriptable (`bake new <name>` skips the form). Shared
+> styles live in `tui/theme.go`. Interactive screens (picker, form) need a real
+> terminal to view; the static handoff header is verified. Note: the chat itself is
+> still goose's screen (the two-TUIs rule) — a bake-owned chat is V2 §3 (ACP).
+
 **Goal:** turn the working CLI into the cool, animated experience as a second
 front-end calling the **same** `internal/` core functions from Phase 1 — no core
 logic rewritten, and the plain commands still work headless for scripting.

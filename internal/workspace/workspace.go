@@ -15,6 +15,9 @@ import (
 
 var nameRe = regexp.MustCompile(`^[a-z0-9][a-z0-9_-]*$`)
 
+// ValidName reports whether name is a usable project name.
+func ValidName(name string) bool { return nameRe.MatchString(name) }
+
 // Project is a single project in the workspace.
 type Project struct {
 	Name string
@@ -26,10 +29,14 @@ func ProjectsDir(c *config.Config) string {
 	return filepath.Join(c.WorkspacePath, "projects")
 }
 
-// Create scaffolds a new project from the embedded templates.
-func Create(c *config.Config, name string) (*Project, error) {
+// Create scaffolds a new project from the embedded templates. If model is empty,
+// the workspace default is used.
+func Create(c *config.Config, name, model string) (*Project, error) {
 	if !nameRe.MatchString(name) {
 		return nil, fmt.Errorf("invalid project name %q: use lowercase letters, digits, '-' or '_'", name)
+	}
+	if model == "" {
+		model = c.DefaultModel
 	}
 	dir := filepath.Join(ProjectsDir(c), name)
 	switch _, err := os.Stat(dir); {
@@ -38,7 +45,7 @@ func Create(c *config.Config, name string) (*Project, error) {
 	case !os.IsNotExist(err):
 		return nil, err
 	}
-	if err := templates.RenderProject(dir, templates.ProjectData{Name: name, Model: c.DefaultModel}); err != nil {
+	if err := templates.RenderProject(dir, templates.ProjectData{Name: name, Model: model}); err != nil {
 		return nil, err
 	}
 	return &Project{Name: name, Path: dir}, nil
