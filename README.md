@@ -18,6 +18,50 @@ start a new chat from zero.
 - **Secrets stay in goose.** The OpenRouter API key lives in your OS keyring via
   goose — `bake` never reads, stores, or logs it.
 
+## Project files
+
+Each project is a folder with these pieces:
+
+```
+coffee/
+  recipe.yaml     # how the assistant is wired (model, role, tools)
+  .goosehints     # always-loaded context
+  docs/           # curated reference, read on demand
+  skills/         # reusable task playbooks, read on demand
+  vault/          # accumulated notes & decisions (INDEX.md)
+```
+
+The key split: **`recipe.yaml` + `.goosehints` are loaded on every message**, while
+**`docs/`, `skills/`, and `vault/` are read on demand** — the assistant opens them
+only when relevant, so they don't cost tokens every turn.
+
+- **`recipe.yaml`** — the goose recipe: the model/provider, the assistant's role
+  (its `instructions`), and which tools are enabled. This is *how the agent is
+  wired*, not what it knows. Edit it to change the model, the persona, or tools.
+- **`.goosehints`** — durable, high-value facts the assistant should **always** know:
+  who you are, the project's core facts, your tone, and pointers to the rest. Loaded
+  in full every message, so keep it tight.
+- **`docs/`** — larger or occasional **reference** material (product lists, pricing,
+  specs, pasted notes/PDFs). Too big or too situational to always load; the assistant
+  reads what it needs.
+- **`skills/`** — **how-to** playbooks for recurring tasks (e.g. "write tasting
+  notes", "draft marketing copy") — method and format you want applied consistently.
+- **`vault/`** — the project's **memory over time**: decisions and topic notes, with
+  an `INDEX.md`. Hand-maintained today; auto-updated after each chat in the roadmap.
+
+### Which one do I use?
+
+| You want to…                                   | Put it in…       |
+|------------------------------------------------|------------------|
+| Change the model, persona, or enabled tools    | `recipe.yaml`    |
+| State a fact the assistant must *always* know   | `.goosehints`    |
+| Add big or situational reference material       | `docs/`          |
+| Define how a repeatable task should be done     | `skills/`        |
+| Record a decision or outcome to build on later  | `vault/`         |
+
+Rule of thumb: **always-known and short → `.goosehints`; everything larger goes in
+`docs/`/`skills/`/`vault/` and is pulled in only when needed.**
+
 ## Install
 
 Requires [Go](https://go.dev/) and [goose](https://formulae.brew.sh/formula/block-goose-cli):
@@ -42,8 +86,8 @@ bake list                # list projects
 
 ## Status
 
-MVP (Phase 1): project scaffolding + per-project context + chat. See `PLAN.md`.
-Auto-updating vault and a Charm TUI are planned — see `V2.md`.
+MVP: project scaffolding + per-project context + chat (Phase 1) and a Charm TUI
+(Phase 2). See `plans/initial.md`. Post-MVP plans live in `ROADMAP.md`.
 
 ## License
 
