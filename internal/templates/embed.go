@@ -3,6 +3,7 @@ package templates
 
 import (
 	"embed"
+	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -43,7 +44,7 @@ func renderFile(srcFS fs.FS, srcPath, outPath string, data ProjectData) error {
 	}
 	tmpl, err := template.New(filepath.Base(srcPath)).Parse(string(content))
 	if err != nil {
-		return err
+		return fmt.Errorf("parse template %s: %w", srcPath, err)
 	}
 	if err := os.MkdirAll(filepath.Dir(outPath), 0o755); err != nil {
 		return err
@@ -54,7 +55,7 @@ func renderFile(srcFS fs.FS, srcPath, outPath string, data ProjectData) error {
 	}
 	if err := tmpl.Execute(f, data); err != nil {
 		f.Close()
-		return err
+		return fmt.Errorf("render %s: %w", outPath, err)
 	}
 	return f.Close()
 }

@@ -76,7 +76,7 @@ func Load() (*Config, error) {
 		if errors.Is(err, os.ErrNotExist) {
 			return nil, fmt.Errorf("bake is not initialized — run `bake init` first")
 		}
-		return nil, err
+		return nil, fmt.Errorf("read config %s: %w", path, err)
 	}
 	return &c, nil
 }
@@ -88,7 +88,7 @@ func Save(c *Config) error {
 		return err
 	}
 	if err := os.MkdirAll(dir, 0o755); err != nil {
-		return err
+		return fmt.Errorf("create config dir %s: %w", dir, err)
 	}
 	path, err := FilePath()
 	if err != nil {
@@ -96,8 +96,11 @@ func Save(c *Config) error {
 	}
 	f, err := os.OpenFile(path, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0o600)
 	if err != nil {
-		return err
+		return fmt.Errorf("open config %s: %w", path, err)
 	}
 	defer f.Close()
-	return toml.NewEncoder(f).Encode(c)
+	if err := toml.NewEncoder(f).Encode(c); err != nil {
+		return fmt.Errorf("write config %s: %w", path, err)
+	}
+	return nil
 }

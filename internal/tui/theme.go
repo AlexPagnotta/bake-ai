@@ -9,7 +9,6 @@ import "github.com/charmbracelet/lipgloss"
 var (
 	accent  = lipgloss.Color("214") // amber
 	accent2 = lipgloss.Color("130") // darker toast
-	subtle  = lipgloss.Color("245")
 	faint   = lipgloss.Color("240")
 	fg      = lipgloss.Color("252")
 )
@@ -21,8 +20,6 @@ var (
 			Foreground(lipgloss.Color("0")).
 			Background(accent).
 			Padding(0, 1)
-
-	subtitleStyle = lipgloss.NewStyle().Foreground(subtle)
 
 	panelStyle = lipgloss.NewStyle().
 			Border(lipgloss.RoundedBorder()).

@@ -27,7 +27,7 @@ func (i pickerItem) Title() string {
 	}
 	return i.name
 }
-func (i pickerItem) Description() string  { return i.desc }
+func (i pickerItem) Description() string { return i.desc }
 func (i pickerItem) FilterValue() string { return i.name }
 
 type pickerModel struct {

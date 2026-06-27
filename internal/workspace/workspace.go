@@ -43,10 +43,10 @@ func Create(c *config.Config, name, model string) (*Project, error) {
 	case err == nil:
 		return nil, fmt.Errorf("project %q already exists at %s", name, dir)
 	case !os.IsNotExist(err):
-		return nil, err
+		return nil, fmt.Errorf("check project dir %s: %w", dir, err)
 	}
 	if err := templates.RenderProject(dir, templates.ProjectData{Name: name, Model: model}); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("scaffold project %q: %w", name, err)
 	}
 	return &Project{Name: name, Path: dir}, nil
 }
@@ -59,7 +59,7 @@ func List(c *config.Config) ([]Project, error) {
 		if os.IsNotExist(err) {
 			return nil, nil
 		}
-		return nil, err
+		return nil, fmt.Errorf("read projects dir %s: %w", root, err)
 	}
 	var projects []Project
 	for _, e := range entries {

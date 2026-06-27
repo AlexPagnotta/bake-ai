@@ -60,7 +60,7 @@ func runHome(cmd *cobra.Command, args []string) error {
 			}
 			p, err := workspace.Create(c, name, model)
 			if err != nil {
-				fmt.Println(err)
+				fmt.Fprintln(os.Stderr, err)
 				continue
 			}
 			fmt.Printf("Created project %q at %s\n", p.Name, p.Path)
