@@ -71,6 +71,41 @@ goose.
 - Rejected: scraping `goose run` output (fragile); full goose-agnostic rebuild
   (only if bake outgrows goose).
 
+## 6. Project-less quick questions
+A first-class way to use bake for one-off questions without picking (or creating)
+a project — but still backed by a configurable recipe and skills, so it behaves
+"like a project without being one."
+
+- **The "scratch" pseudo-project.** A single, always-present context that lives
+  outside `projects/` (e.g. `<workspace>/scratch/` or `<workspace>/quick/`) with
+  the same shape as a project — `recipe.yaml`, `skills/`, `.goosehints` — just not
+  listed as a project. `bake init` scaffolds it from a dedicated template
+  (`internal/templates/scratch/...`) using a general-purpose recipe + default model.
+- **Entry points:**
+  - CLI: `bake ask "<question>"` — runs goose against the scratch recipe and
+    answers (one-shot by default; `--chat`/`-i` to drop into an interactive
+    session instead).
+  - TUI: a pinned **"⚡ Quick question"** row at the top of the picker (above the
+    project list), always available, no project required.
+  - Bare `bake ask` with no args → interactive scratch session.
+- **Configurable, like a project.** Reuse the §3 authoring commands against the
+  scratch context so skills/recipe/context are editable the same way:
+  `bake skill add scratch <name>`, `bake context edit scratch`,
+  `bake prompt edit scratch`, `bake assist scratch "<request>"`. *Recommendation:
+  make the engine functions take a project-or-scratch handle so CLI + TUI + these
+  commands share one code path; scratch is just a `Project` with a fixed name and
+  a path outside `projects/`.*
+- **Engine changes:** `workspace.Scratch(c)` returns the scratch handle (creating
+  it on demand if missing); `workspace.List` keeps excluding it so it never shows
+  as a normal project; `gooserun` gains a one-shot `Ask` path alongside
+  `LaunchChat`.
+- **Optional vault:** scratch can have its own `vault/` so distill (§1) still
+  applies, giving you a running memory of ad-hoc questions — opt-in, since one-offs
+  are often throwaway.
+- Open question: one scratch context, or named scratch presets
+  (`bake ask --as research "<q>"`) for a few reusable "modes" without full
+  projects? Start with one; add presets only if needed.
+
 ## Backlog / later
 - Web view — open an answer in the browser.
 - Homebrew tap for `brew install` (packaging is already brew-ready).

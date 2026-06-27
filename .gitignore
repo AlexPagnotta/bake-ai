@@ -15,3 +15,6 @@ secrets.*
 
 # Plans
 .plans/
+
+# Local code map (not published)
+EXPLAIN.md

@@ -1,4 +1,4 @@
-# bake-ai
+# BAKE AI
 
 ![bake-ai cover](assets/cover.jpg)
 
@@ -38,8 +38,8 @@ The key split: **`recipe.yaml` + `.goosehints` are loaded on every message**, wh
 only when relevant, so they don't cost tokens every turn.
 
 - **`recipe.yaml`** — the goose recipe: the model/provider, the assistant's role
-  (its `instructions`), and which tools are enabled. This is *how the agent is
-  wired*, not what it knows. Edit it to change the model, the persona, or tools.
+  (its `instructions`), and which tools are enabled. This is _how the agent is
+  wired_, not what it knows. Edit it to change the model, the persona, or tools.
 - **`.goosehints`** — durable, high-value facts the assistant should **always** know:
   who you are, the project's core facts, your tone, and pointers to the rest. Loaded
   in full every message, so keep it tight.
@@ -53,13 +53,13 @@ only when relevant, so they don't cost tokens every turn.
 
 ### Which one do I use?
 
-| You want to…                                   | Put it in…       |
-|------------------------------------------------|------------------|
-| Change the model, persona, or enabled tools    | `recipe.yaml`    |
-| State a fact the assistant must *always* know   | `.goosehints`    |
-| Add big or situational reference material       | `docs/`          |
-| Define how a repeatable task should be done     | `skills/`        |
-| Record a decision or outcome to build on later  | `vault/`         |
+| You want to…                                   | Put it in…    |
+| ---------------------------------------------- | ------------- |
+| Change the model, persona, or enabled tools    | `recipe.yaml` |
+| State a fact the assistant must _always_ know  | `.goosehints` |
+| Add big or situational reference material      | `docs/`       |
+| Define how a repeatable task should be done    | `skills/`     |
+| Record a decision or outcome to build on later | `vault/`      |
 
 Rule of thumb: **always-known and short → `.goosehints`; everything larger goes in
 `docs/`/`skills/`/`vault/` and is pulled in only when needed.**
