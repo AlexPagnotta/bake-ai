@@ -11,7 +11,6 @@ import (
 	"github.com/alexpagnotta/bake-ai/internal/config"
 	"github.com/alexpagnotta/bake-ai/internal/workspace"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/glamour"
 	"github.com/charmbracelet/huh"
 	"github.com/charmbracelet/lipgloss"
 )
@@ -91,9 +90,6 @@ func PrintChatHeader(p *workspace.Project) {
 	fmt.Println()
 	fmt.Println(titleStyle.Render(" bake · " + p.Name + " "))
 	fmt.Println(panelStyle.Render(info))
-	if preview := renderVaultPreview(p); preview != "" {
-		fmt.Print(preview)
-	}
 	fmt.Println(helpStyle.Render("Starting goose… type your message; Ctrl+C ends the session."))
 	fmt.Println()
 }
@@ -110,21 +106,4 @@ func recipeModel(p *workspace.Project) string {
 		return strings.TrimSpace(string(m[1]))
 	}
 	return "(unknown)"
-}
-
-// renderVaultPreview renders vault/INDEX.md through Glamour, or "" if unavailable.
-func renderVaultPreview(p *workspace.Project) string {
-	b, err := os.ReadFile(filepath.Join(p.Path, "vault", "INDEX.md"))
-	if err != nil {
-		return ""
-	}
-	r, err := glamour.NewTermRenderer(glamour.WithAutoStyle(), glamour.WithWordWrap(72))
-	if err != nil {
-		return ""
-	}
-	out, err := r.Render(string(b))
-	if err != nil {
-		return ""
-	}
-	return out
 }

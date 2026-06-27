@@ -1,6 +1,7 @@
 package tui
 
 import (
+	_ "embed"
 	"fmt"
 	"math"
 	"strings"
@@ -10,19 +11,19 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-// bakeArt is the big, bold "BAKE" banner on the home screen. All lines are the
-// same width so the animated gradient lines up cleanly column-to-column.
-var bakeArt = []string{
-	` ___    _    _  _  ___ `,
-	`| _ )  /_\  | |/ // __|`,
-	`| _ \ / _ \ |   < | _| `,
-	`|___//_/ \_\|_|\_\|___|`,
-}
+// bannerArt is the big "BAKE" banner shown on the home screen. Cells are filled
+// (any non-'.', non-space rune) or empty ('.' / space). Filled cells get the
+// animated gradient; empty cells render as blank, so the letters show through.
+//
+//go:embed banner.txt
+var bannerSrc string
+
+var bakeArt = strings.Split(strings.TrimRight(bannerSrc, "\n"), "\n")
 
 // tickMsg drives the gradient animation; one arrives on every frame.
 type tickMsg time.Time
 
-// bannerFPS is the animation cadence. ~12 fps is smooth enough for a sweeping
+// bannerFPS is the animation cadence. ~12 fps is smooth enough for a flowing
 // gradient while staying cheap on the terminal.
 const bannerFPS = 12
 
@@ -31,29 +32,26 @@ func tick() tea.Cmd {
 	return tea.Tick(time.Second/bannerFPS, func(t time.Time) tea.Msg { return tickMsg(t) })
 }
 
-// renderBanner draws bakeArt with a pink→cyan gradient that sweeps left→right.
-// phase advances each frame, shifting the gradient so it appears to flow.
+// renderBanner draws bakeArt with a lilac→pink gradient that ripples diagonally.
+// The color of each filled cell depends on (x+y), so equal-color bands run along
+// the anti-diagonal; subtracting phase makes those bands drift over time, giving
+// the wavy motion. Empty cells ('.'/space) are left blank.
 func renderBanner(phase int) string {
 	var b strings.Builder
-	for _, line := range bakeArt {
+	for y, line := range bakeArt {
 		for x, r := range line {
-			if r == ' ' {
+			if r == '.' || r == ' ' {
 				b.WriteByte(' ')
 				continue
 			}
-			// A sine wave across the columns, shifted by phase, gives a smooth
-			// looping sweep. Subtracting phase moves the highlight to the right.
-			t := 0.5 + 0.5*math.Sin(float64(x)*0.30-float64(phase)*0.45)
-			st := lipgloss.NewStyle().Bold(true).Foreground(lerpColor(brandPink, brandCyan, t))
+			t := 0.5 + 0.5*math.Sin((float64(x)+float64(y))*0.14-float64(phase)*0.30)
+			st := lipgloss.NewStyle().Foreground(lerpColor(brandLilac, brandPink, t))
 			b.WriteString(st.Render(string(r)))
 		}
 		b.WriteByte('\n')
 	}
 	return strings.TrimRight(b.String(), "\n")
 }
-
-// bannerHeight is the rendered banner's line count (constant — art is fixed).
-func bannerHeight() int { return len(bakeArt) }
 
 // lerpColor linearly interpolates between two #RRGGBB colors. t is clamped 0..1.
 func lerpColor(from, to string, t float64) lipgloss.Color {

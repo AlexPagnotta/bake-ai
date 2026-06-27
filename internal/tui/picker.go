@@ -30,13 +30,21 @@ func (i pickerItem) Title() string {
 func (i pickerItem) Description() string { return i.desc }
 func (i pickerItem) FilterValue() string { return i.name }
 
-// appStyle frames the whole home screen (margin around banner + list).
+// appStyle frames the whole home screen (margin around header + list).
 var appStyle = lipgloss.NewStyle().Margin(1, 2)
+
+// homeHeader is the minimal static header above the project list: the BAKE AI
+// title chip and a one-line description. (The animated banner is the splash.)
+func homeHeader() string {
+	return lipgloss.JoinVertical(lipgloss.Left,
+		titleStyle.Render(" BAKE AI "),
+		helpStyle.Render("your personalized, project-aware AI assistant"),
+	)
+}
 
 type pickerModel struct {
 	list   list.Model
 	result Result
-	phase  int // animation frame counter for the banner gradient
 }
 
 func newPickerModel(projects []workspace.Project) pickerModel {
@@ -61,17 +69,19 @@ func newPickerModel(projects []workspace.Project) pickerModel {
 	return pickerModel{list: l}
 }
 
-func (m pickerModel) Init() tea.Cmd { return tick() }
+func (m pickerModel) Init() tea.Cmd { return nil }
 
 func (m pickerModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
-	case tickMsg:
-		m.phase++
-		return m, tick()
 	case tea.WindowSizeMsg:
 		h, v := appStyle.GetFrameSize()
-		// Leave room for the banner plus a one-line spacer above the list.
-		m.list.SetSize(msg.Width-h, msg.Height-v-bannerHeight()-1)
+		// Leave room for the header plus a one-line spacer above the list,
+		// but never let the list height go negative on short terminals.
+		listH := msg.Height - v - lipgloss.Height(homeHeader()) - 1
+		if listH < 1 {
+			listH = 1
+		}
+		m.list.SetSize(msg.Width-h, listH)
 	case tea.KeyMsg:
 		// While the user is typing a filter, let the list own every key.
 		if m.list.FilterState() == list.Filtering {
@@ -102,7 +112,7 @@ func (m pickerModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m pickerModel) View() string {
 	body := lipgloss.JoinVertical(lipgloss.Left,
-		renderBanner(m.phase),
+		homeHeader(),
 		"",
 		m.list.View(),
 	)

@@ -42,6 +42,13 @@ func runHome(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
+	// Startup splash: the animated banner full-screen for a few seconds. Shown
+	// once here (not inside the loop, so returning from a chat goes straight home).
+	if quit, err := tui.RunSplash(); err != nil {
+		return err
+	} else if quit {
+		return nil
+	}
 	for {
 		res, err := tui.RunPicker(c)
 		if err != nil {
