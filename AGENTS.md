@@ -58,6 +58,23 @@ constants rather than hardcoding hex elsewhere, and don't introduce new colors.
 Aim for a fun, "poppy" feel (e.g. the animated pink→cyan gradient on the
 home-screen `BAKE` banner).
 
+## Always review after changing code
+
+After completing any request that changes code, **automatically run the
+`review-changes` skill** (an independent sub-agent review, grouped into
+High/Medium/Low). Do this before considering the task done — the user should not
+have to ask for it.
+
+- Skip it only when the user explicitly opts out for that request (e.g. "no
+  review", "skip the review", "don't review this").
+- Also skip for changes that aren't code: docs-only edits, this file, skill files,
+  config tweaks, or pure formatting.
+- Also skip when the change is truly trivial, so a full review wouldn't make sense
+  (e.g. a one-line tweak, a renamed variable, a typo fix, a comment change). Use
+  judgment: if there's nothing meaningful for a reviewer to catch, don't run it.
+- Run the review **before** committing, so any High findings can be addressed
+  first. Report the findings, then continue.
+
 ## Other conventions
 
 - The **engine** packages (`internal/config`, `internal/workspace`,
