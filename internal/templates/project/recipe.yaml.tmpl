@@ -1,0 +1,15 @@
+version: "1.0.0"
+title: "{{.Name}} assistant"
+description: "Personalized AI assistant for the {{.Name}} project."
+instructions: |
+  You are the dedicated assistant for the "{{.Name}}" project.
+  Ground every answer in this project's context. The .goosehints file is loaded
+  automatically. Curated reference material lives in docs/. Accumulated notes and
+  decisions live in vault/ — start from vault/INDEX.md. When a question touches
+  project specifics, read those files before answering instead of guessing.
+extensions:
+  - type: builtin
+    name: developer
+settings:
+  goose_provider: "openrouter"
+  goose_model: "{{.Model}}"

@@ -1,0 +1,35 @@
+# GoReleaser config — builds cross-platform binaries for GitHub Releases.
+# Run `goreleaser release --clean` on a tagged commit (needs GITHUB_TOKEN),
+# or `goreleaser build --clean --snapshot` to test builds locally.
+version: 2
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - id: bake
+    main: ./cmd/bake
+    binary: bake
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - darwin
+      - linux
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w -X main.version={{.Version}}
+
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+
+checksum:
+  name_template: "checksums.txt"
+
+release:
+  draft: true
+
+# Future: a `brews:` block here can publish a Homebrew tap formula automatically.
