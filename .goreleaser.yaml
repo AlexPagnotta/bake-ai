@@ -29,7 +29,42 @@ archives:
 checksum:
   name_template: "checksums.txt"
 
-release:
-  draft: true
+# Release notes are generated from Conventional Commits since the previous tag.
+# (v1.0.0 uses hand-written notes via `--release-notes`; see the cut-release skill.)
+changelog:
+  use: git
+  sort: asc
+  groups:
+    - { title: "Features", regexp: '^feat', order: 0 }
+    - { title: "Bug Fixes", regexp: '^fix', order: 1 }
+    - { title: "Performance", regexp: '^perf', order: 2 }
+    - { title: "Documentation", regexp: '^docs', order: 3 }
+  filters:
+    exclude: ['^style', '^test', '^chore', '^refactor', 'merge conflict']
 
-# Future: a `brews:` block here can publish a Homebrew tap formula automatically.
+release:
+  draft: false
+
+# Publishes a Homebrew cask to the github.com/alexpagnotta/homebrew-tap repo, so
+# users can `brew install alexpagnotta/tap/bake`. Casks are how Homebrew expects
+# pre-compiled binaries to be distributed (the older `brews:` formula block is
+# deprecated). Needs GITHUB_TOKEN with write access to both this repo and the tap.
+homebrew_casks:
+  - name: bake
+    binaries:
+      - bake
+    repository:
+      owner: alexpagnotta
+      name: homebrew-tap
+    homepage: "https://github.com/alexpagnotta/bake-ai"
+    description: "A personalized, project-aware AI assistant for your terminal."
+    dependencies:
+      - formula: block-goose-cli
+    caveats: |
+      bake drives goose. After installing, configure a provider once:
+        goose configure   # Providers → OpenRouter → paste your key
+      Then run: bake init
+
+      Note: block-goose-cli installs a `goose` binary and conflicts with the
+      unrelated `goose` (DB migration) formula. If you have that installed,
+      remove it first.

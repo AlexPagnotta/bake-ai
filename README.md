@@ -43,19 +43,30 @@ when relevant, so they don't cost tokens every turn.
 
 ## Installation
 
-`bake` needs [Go](https://go.dev/) and
-[goose](https://block.github.io/goose/docs/getting-started/installation).
+```sh
+# Installs bake + goose in one go
+brew install alexpagnotta/tap/bake
+
+# Point goose at a provider (OpenRouter recommended), then set up the workspace
+goose configure          # Configure Providers → OpenRouter → paste your key
+bake init
+```
+
+<details>
+<summary>Install with Go instead</summary>
+
+Requires [Go](https://go.dev/) and
+[goose](https://block.github.io/goose/docs/getting-started/installation):
 
 ```sh
-# 1. Install goose and point it at a provider (OpenRouter recommended)
 brew install block-goose-cli
-goose configure          # Configure Providers → OpenRouter → paste your key
-
-# 2. Install bake
 go install github.com/alexpagnotta/bake-ai/cmd/bake@latest
 ```
 
-Make sure `$(go env GOPATH)/bin` is on your `PATH`, then run `bake init`.
+Make sure `$(go env GOPATH)/bin` is on your `PATH`, then run `goose configure`
+and `bake init`.
+
+</details>
 
 ## Usage
 
@@ -95,13 +106,25 @@ Clone the repo and build from source:
 git clone https://github.com/alexpagnotta/bake-ai.git
 cd bake-ai
 
-go build ./...           # build everything
-go run ./cmd/bake        # run the CLI locally
-go test ./...            # run the tests
+make build               # build everything (go build ./...)
+make dev                 # run the CLI locally (go run ./cmd/bake)
+make test                # run the tests (go test ./...)
 ```
 
-Releases are cut with [GoReleaser](https://goreleaser.com/) (see
-`.goreleaser.yaml`).
+### Releasing
+
+Releases use [Semantic Versioning](https://semver.org/) via git tags and are cut
+with [GoReleaser](https://goreleaser.com/) (see `.goreleaser.yaml`), which builds
+the binaries, generates the GitHub Release notes, and updates the Homebrew tap.
+
+```sh
+git tag -a v1.2.0 -m "v1.2.0"
+git push origin v1.2.0
+export GITHUB_TOKEN=...   # PAT with write access to bake-ai and homebrew-tap
+make release             # goreleaser release --clean
+```
+
+Use `make snapshot` to test a release build locally without publishing.
 
 ## License
 
