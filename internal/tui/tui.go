@@ -31,12 +31,13 @@ type Result struct {
 }
 
 // RunPicker shows the project picker (alt screen) and returns the chosen action.
-func RunPicker(c *config.Config) (Result, error) {
+// version is shown in the home header.
+func RunPicker(c *config.Config, version string) (Result, error) {
 	projects, err := workspace.List(c)
 	if err != nil {
 		return Result{}, err
 	}
-	final, err := tea.NewProgram(newPickerModel(projects), tea.WithAltScreen()).Run()
+	final, err := tea.NewProgram(newPickerModel(projects, version), tea.WithAltScreen()).Run()
 	if err != nil {
 		return Result{}, err
 	}

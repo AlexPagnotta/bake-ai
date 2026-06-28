@@ -15,6 +15,9 @@ import (
 
 var nameRe = regexp.MustCompile(`^[a-z0-9][a-z0-9_-]*$`)
 
+// descRe best-effort extracts the `description:` line from a recipe.yaml.
+var descRe = regexp.MustCompile(`(?m)^description:\s*"?([^"\n]+)"?`)
+
 // ValidName reports whether name is a usable project name.
 func ValidName(name string) bool { return nameRe.MatchString(name) }
 
@@ -22,6 +25,20 @@ func ValidName(name string) bool { return nameRe.MatchString(name) }
 type Project struct {
 	Name string
 	Path string
+	// Description is the recipe's one-line description, empty if unreadable.
+	Description string
+}
+
+// readDescription best-effort reads the recipe description for the project at dir.
+func readDescription(dir string) string {
+	b, err := os.ReadFile(filepath.Join(dir, "recipe.yaml"))
+	if err != nil {
+		return ""
+	}
+	if m := descRe.FindSubmatch(b); m != nil {
+		return string(m[1])
+	}
+	return ""
 }
 
 // ProjectsDir returns the directory holding all projects.
@@ -66,10 +83,11 @@ func List(c *config.Config) ([]Project, error) {
 		if !e.IsDir() {
 			continue
 		}
-		if _, err := os.Stat(filepath.Join(root, e.Name(), "recipe.yaml")); err != nil {
+		dir := filepath.Join(root, e.Name())
+		if _, err := os.Stat(filepath.Join(dir, "recipe.yaml")); err != nil {
 			continue
 		}
-		projects = append(projects, Project{Name: e.Name(), Path: filepath.Join(root, e.Name())})
+		projects = append(projects, Project{Name: e.Name(), Path: dir, Description: readDescription(dir)})
 	}
 	sort.Slice(projects, func(i, j int) bool { return projects[i].Name < projects[j].Name })
 	return projects, nil

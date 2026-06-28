@@ -1,6 +1,8 @@
 package tui
 
 import (
+	"strings"
+
 	"github.com/alexpagnotta/bake-ai/internal/workspace"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
@@ -33,24 +35,54 @@ func (i pickerItem) FilterValue() string { return i.name }
 // appStyle frames the whole home screen (margin around header + list).
 var appStyle = lipgloss.NewStyle().Margin(1, 2)
 
-// homeHeader is the minimal static header above the project list: the BAKE AI
-// title chip and a one-line description. (The animated banner is the splash.)
-func homeHeader() string {
-	return lipgloss.JoinVertical(lipgloss.Left,
+// dividerStyle colors the vertical line between the logo and the title block.
+var dividerStyle = lipgloss.NewStyle().Foreground(accent2)
+
+// homeHeader is the home screen header: the animated cake logo on the left, a
+// vertical divider, then the tool name, description, and version on the right.
+// phase drives the logo's gradient animation.
+func homeHeader(phase int, version string) string {
+	logo := renderLogo(phase)
+
+	info := lipgloss.JoinVertical(lipgloss.Left,
 		titleStyle.Render(" BAKE AI "),
-		helpStyle.Render("your personalized, project-aware AI assistant"),
+		"",
+		helpStyle.Render("Your personalized, project-aware AI assistant"),
+		labelStyle.Render("version ")+valueStyle.Render(version),
+	)
+
+	height := lipgloss.Height(logo)
+	divider := dividerStyle.Render(strings.TrimRight(strings.Repeat("│\n", height), "\n"))
+
+	return lipgloss.JoinHorizontal(lipgloss.Top,
+		logo, "  ", divider, "  ", info,
+	)
+}
+
+// listHeader is the title + one-line description shown directly above the
+// project list.
+func listHeader() string {
+	return lipgloss.JoinVertical(lipgloss.Left,
+		titleStyle.Render("Your projects"),
+		helpStyle.Render("Pick a project to open, or start a new one"),
 	)
 }
 
 type pickerModel struct {
-	list   list.Model
-	result Result
+	list    list.Model
+	result  Result
+	phase   int    // logo gradient animation frame
+	version string // shown in the header
 }
 
-func newPickerModel(projects []workspace.Project) pickerModel {
+func newPickerModel(projects []workspace.Project, version string) pickerModel {
 	items := make([]list.Item, 0, len(projects)+1)
 	for _, p := range projects {
-		items = append(items, pickerItem{kind: kindProject, name: p.Name, desc: p.Path})
+		desc := p.Description
+		if desc == "" {
+			desc = p.Path
+		}
+		items = append(items, pickerItem{kind: kindProject, name: p.Name, desc: desc})
 	}
 	items = append(items, pickerItem{kind: kindNew, desc: "scaffold a new project"})
 
@@ -61,23 +93,26 @@ func newPickerModel(projects []workspace.Project) pickerModel {
 	delegate.Styles.SelectedDesc = delegate.Styles.SelectedDesc.Foreground(accent2).BorderLeftForeground(accent)
 
 	l := list.New(items, delegate, 0, 0)
-	l.Title = "your projects"
-	l.Styles.Title = titleStyle
+	l.SetShowTitle(false) // we render our own title + description above the list
 	l.SetShowStatusBar(false)
 	l.SetFilteringEnabled(true)
 
-	return pickerModel{list: l}
+	return pickerModel{list: l, version: version}
 }
 
-func (m pickerModel) Init() tea.Cmd { return nil }
+func (m pickerModel) Init() tea.Cmd { return tick() }
 
 func (m pickerModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
+	case tickMsg:
+		m.phase++
+		return m, tick()
 	case tea.WindowSizeMsg:
 		h, v := appStyle.GetFrameSize()
-		// Leave room for the header plus a one-line spacer above the list,
-		// but never let the list height go negative on short terminals.
-		listH := msg.Height - v - lipgloss.Height(homeHeader()) - 1
+		// Leave room for the home header, the list header (title + desc), and a
+		// one-line spacer above and below the list header — but never let the
+		// list height go negative on short terminals.
+		listH := msg.Height - v - lipgloss.Height(m.header()) - lipgloss.Height(listHeader()) - 2
 		if listH < 1 {
 			listH = 1
 		}
@@ -110,9 +145,14 @@ func (m pickerModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
+// header renders this model's home header at its current animation phase.
+func (m pickerModel) header() string { return homeHeader(m.phase, m.version) }
+
 func (m pickerModel) View() string {
 	body := lipgloss.JoinVertical(lipgloss.Left,
-		homeHeader(),
+		m.header(),
+		"",
+		listHeader(),
 		"",
 		m.list.View(),
 	)

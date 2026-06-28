@@ -11,14 +11,14 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-// bannerArt is the big "BAKE" banner shown on the home screen. Cells are filled
-// (any non-'.', non-space rune) or empty ('.' / space). Filled cells get the
-// animated gradient; empty cells render as blank, so the letters show through.
+// logoArt is the cake mascot shown on the left of the home header. Cells are
+// filled (any non-'.', non-space rune) or empty ('.' / space); filled cells get
+// the animated gradient, empty cells render as blank.
 //
-//go:embed banner.txt
-var bannerSrc string
+//go:embed logo.txt
+var logoSrc string
 
-var bakeArt = strings.Split(strings.TrimRight(bannerSrc, "\n"), "\n")
+var logoArt = strings.Split(strings.TrimRight(logoSrc, "\n"), "\n")
 
 // tickMsg drives the gradient animation; one arrives on every frame.
 type tickMsg time.Time
@@ -32,13 +32,16 @@ func tick() tea.Cmd {
 	return tea.Tick(time.Second/bannerFPS, func(t time.Time) tea.Msg { return tickMsg(t) })
 }
 
-// renderBanner draws bakeArt with a lilac→pink gradient that ripples diagonally.
+// renderLogo draws the cake mascot with the animated gradient. See renderArt.
+func renderLogo(phase int) string { return renderArt(logoArt, phase) }
+
+// renderArt draws ascii art with a lilac→pink gradient that ripples diagonally.
 // The color of each filled cell depends on (x+y), so equal-color bands run along
 // the anti-diagonal; subtracting phase makes those bands drift over time, giving
 // the wavy motion. Empty cells ('.'/space) are left blank.
-func renderBanner(phase int) string {
+func renderArt(art []string, phase int) string {
 	var b strings.Builder
-	for y, line := range bakeArt {
+	for y, line := range art {
 		for x, r := range line {
 			if r == '.' || r == ' ' {
 				b.WriteByte(' ')
