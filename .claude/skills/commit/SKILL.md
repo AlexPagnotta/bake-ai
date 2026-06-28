@@ -1,6 +1,6 @@
 ---
 name: commit
-description: Write git commit messages for this repo in Conventional Commits style — a "type: description" title (feat, fix, chore, docs, etc.) with an optional body. Use whenever creating a commit here.
+description: Write commit messages in this repo's Conventional Commits style. Use whenever creating a commit here.
 ---
 
 # Commit messages

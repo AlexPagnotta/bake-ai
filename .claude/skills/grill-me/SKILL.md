@@ -1,6 +1,6 @@
 ---
 name: grill-me
-description: Interrogate the user about a plan or design, one question at a time, walking the design tree and resolving decisions until a shared understanding is reached. Use when planning a feature or making design decisions and the user wants to be grilled / pushed to think it through.
+description: Grill the user about a plan or design, one question at a time, until it's thought through. Use when planning a feature or making design decisions and the user wants to be pushed.
 ---
 
 # Grill me

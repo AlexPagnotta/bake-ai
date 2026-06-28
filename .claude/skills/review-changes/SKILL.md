@@ -1,6 +1,6 @@
 ---
 name: review-changes
-description: Review the code changes from a just-completed implementation using an independent sub-agent, surfacing bugs and problems grouped into High / Medium / Low priority. Use after finishing a feature or change, or whenever the user asks to review the work.
+description: Review just-completed code changes with an independent sub-agent. Use after finishing a change, or whenever the user asks to review the work.
 ---
 
 # Review changes

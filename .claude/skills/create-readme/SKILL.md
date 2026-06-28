@@ -1,6 +1,6 @@
 ---
 name: create-readme
-description: Review the project and generate a well-structured README.md in GitHub-flavored Markdown — centered title, description, image, and About/Installation/Usage/Setup sections as applicable. Use when asked to create, write, or regenerate the project's README.
+description: Generate the project's README.md. Use when asked to create, write, or regenerate the README.
 ---
 
 # Create README
